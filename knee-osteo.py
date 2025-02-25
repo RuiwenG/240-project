@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import os
 
-# REDICULOUS need to change data path
+# need to change data path in order to run locally
 data_path = "/nfs/site/disks/xpg_dmrhub_1057/SN_WORK/Term-Project/Knee_Osteoarthritis_Classification"
 
 categories = ["Normal", "Osteopenia", "Osteoporosis"]
