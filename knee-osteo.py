@@ -4,7 +4,7 @@ import pandas as pd
 import os
 
 # need to change data path in order to run locally
-data_path = "/nfs/site/disks/xpg_dmrhub_1057/SN_WORK/Term-Project/Knee_Osteoarthritis_Classification"
+data_path = "/WAVE/users2/unix/rguan/cs240/240-project/Knee_Osteoarthritis_Classification"
 
 categories = ["Normal", "Osteopenia", "Osteoporosis"]
 
@@ -128,10 +128,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, classification_report
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.layers import (
+from keras.models import Sequential
+from keras.optimizers import Adam
+from keras.preprocessing.image import ImageDataGenerator
+from keras.layers import (
     Conv2D,
     MaxPooling2D,
     Flatten,
@@ -140,7 +140,7 @@ from tensorflow.keras.layers import (
     Dropout,
     BatchNormalization,
 )
-from tensorflow.keras import regularizers
+from keras import regularizers
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -212,15 +212,15 @@ print("Num GPUs Available: ", len(tf.config.list_physical_devices("GPU")))
 
 # %%
 import tensorflow as tf
-from tensorflow.keras import layers, models
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras import layers, models
+from keras.callbacks import EarlyStopping, ModelCheckpoint
 
 early_stopping = EarlyStopping(
     monitor="val_loss", patience=5, restore_best_weights=True
 )
-from tensorflow.keras.applications import Xception
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import (
+from keras.applications import Xception
+from keras.models import Model
+from keras.layers import (
     Input,
     GlobalAveragePooling2D,
     Dense,
@@ -230,7 +230,7 @@ from tensorflow.keras.layers import (
     MultiHeadAttention,
     Reshape,
 )
-from tensorflow.keras.optimizers import Adam
+from keras.optimizers import Adam
 
 
 def create_xception_model(input_shape, num_classes=8, learning_rate=1e-4):
