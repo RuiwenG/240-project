@@ -4,7 +4,7 @@ import pandas as pd
 import os
 
 # need to change data path in order to run locally
-data_path = "/WAVE/users2/unix/rguan/cs240/240-project/Knee_Osteoarthritis_Classification"
+data_path = "/Users/ruiweng/Desktop/Winter 24/ML 240/project/240-project/Knee_Osteoarthritis_Classification"
 
 categories = ["Normal", "Osteopenia", "Osteoporosis"]
 
@@ -130,7 +130,7 @@ import tensorflow as tf
 from tensorflow import keras
 from keras.models import Sequential
 from keras.optimizers import Adam
-from keras.preprocessing.image import ImageDataGenerator
+from keras._tf_keras.keras.preprocessing.image import ImageDataGenerator
 from keras.layers import (
     Conv2D,
     MaxPooling2D,
