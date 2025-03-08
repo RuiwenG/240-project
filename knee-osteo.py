@@ -4,7 +4,7 @@ import pandas as pd
 import os
 
 # need to change data path in order to run locally
-data_path = "/Users/ruiweng/Desktop/Winter 24/ML 240/project/240-project/Knee_Osteoarthritis_Classification"
+data_path = "/WAVE/users2/unix/rguan/cs240/240-project/Knee_Osteoarthritis_Classification"
 
 categories = ["Normal", "Osteopenia", "Osteoporosis"]
 
@@ -12,7 +12,7 @@ image_paths = []
 labels = []
 
 for category in categories:
-    category_path = os.path.join(data_path, "train", category)
+    category_path = os.path.join(data_path, "test", category)
     for image_name in os.listdir(category_path):
         image_path = os.path.join(category_path, image_name)
         image_paths.append(image_path)
@@ -175,6 +175,16 @@ channels = 3
 img_shape = (img_size[0], img_size[1], channels)
 tr_gen = ImageDataGenerator(rescale=1.0 / 255)
 ts_gen = ImageDataGenerator(rescale=1.0 / 255)
+# comment out some features for the image data generator
+# zoom_range=0.2,         # Zoom in/out
+# rotation_range=20,      # Rotate images by 20 degrees
+#                             width_shift_range=0.2,  # Shift width
+#                             height_shift_range=0.2, # Shift height
+#                             shear_range=0.2,        # Shear transformation
+#                             horizontal_flip=True,   # Flip images horizontally
+#                             fill_mode='nearest'
+
+# class mode sparese / category
 train_gen_new = tr_gen.flow_from_dataframe(
     train_df_new,
     x_col="image_path",
@@ -218,7 +228,7 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 early_stopping = EarlyStopping(
     monitor="val_loss", patience=5, restore_best_weights=True
 )
-from keras.applications import Xception
+from keras.applications.inception_v3 import InceptionV3
 from keras.models import Model
 from keras.layers import (
     Input,
@@ -232,10 +242,10 @@ from keras.layers import (
 )
 from keras.optimizers import Adam
 
-
+# modification: use InceptionV3 instead of xception
 def create_xception_model(input_shape, num_classes=8, learning_rate=1e-4):
     inputs = Input(shape=input_shape, name="Input_Layer")
-    base_model = Xception(weights="imagenet", input_tensor=inputs, include_top=False)
+    base_model = InceptionV3(weights="imagenet", input_tensor=inputs, include_top=False)
     base_model.trainable = False
     x = base_model.output
     height, width, channels = x.shape[1], x.shape[2], x.shape[3]
@@ -246,11 +256,18 @@ def create_xception_model(input_shape, num_classes=8, learning_rate=1e-4):
     x = Reshape((height, width, channels), name="Reshape_to_Spatial")(x)
     x = GaussianNoise(0.25, name="Gaussian_Noise")(x)
     x = GlobalAveragePooling2D(name="Global_Avg_Pooling")(x)
+    
     x = Dense(512, activation="relu", name="FC_512")(x)
     x = BatchNormalization(name="Batch_Normalization")(x)
-    x = Dropout(0.25, name="Dropout")(x)
+    x = Dropout(0.5, name="Dropout")(x)
+    # adds one more dense layer, normalization and dropout
+    x = Dense(512, activation="relu", name="FC_512_2")(x)
+    x = BatchNormalization(name="Batch_Normalization_2")(x)
+    x = Dropout(0.3, name="Dropout_512_2")(x)
+    
+    
     outputs = Dense(num_classes, activation="softmax", name="Output_Layer")(x)
-    model = Model(inputs=inputs, outputs=outputs, name="Xception_with_Attention")
+    model = Model(inputs=inputs, outputs=outputs, name="Iception_with_Attention")
     model.compile(
         optimizer=Adam(learning_rate=learning_rate),
         loss="sparse_categorical_crossentropy",
@@ -260,8 +277,10 @@ def create_xception_model(input_shape, num_classes=8, learning_rate=1e-4):
 
 
 input_shape = (224, 224, 3)
-cnn_model = create_xception_model(input_shape, num_classes=3, learning_rate=1e-4)
-
+# changed the learning rate
+cnn_model = create_xception_model(input_shape, num_classes=3, learning_rate=1e-5)
+# add early stopping
+early_stopping = EarlyStopping(monitor="val_loss", patience=15, restore_best_weights=True)
 
 # %%
 history = cnn_model.fit(
@@ -298,7 +317,7 @@ plt.title("Model accuracy")
 plt.ylabel("Accuracy")
 plt.xlabel("Epoch")
 plt.legend(["Train", "Validation"], loc="upper left")
-# plt.show()
+plt.show()
 
 plt.plot(history.history["loss"])
 plt.plot(history.history["val_loss"])
